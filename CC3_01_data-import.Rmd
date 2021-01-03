@@ -1,0 +1,20 @@
+---
+title: "Import des donnees"
+output:
+  github_document:
+    toc: yes
+    toc_depth: 2
+---
+
+# import des data
+
+```{bash}
+wget ~/Users/Caroline/Desktop
+```
+
+le code suivant a servir a décompresser les data
+
+```{bash}
+tar xvzf soir_proxy.cgi?core=run_sel_index
+```
+
