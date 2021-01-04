@@ -94,3 +94,40 @@ seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE
 dim(seqtab.nochim)
 ```
 
+```{r}
+sum(seqtab.nochim)/sum(seqtab)
+```
+
+```{r}
+getN <- function(x) sum(getUniques(x))
+track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN), rowSums(seqtab.nochim))
+# If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
+colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
+rownames(track) <- sample.names
+head(track)
+```
+```{bash}
+wget https://zenodo.org/record/3986799/files/silva_nr99_v138_train_set.fa.gz?download=1
+```
+
+```{r}
+taxa <- assignTaxonomy(seqtab.nochim,"~/silva_nr99_v138_train_set.fa.gz?download=1", multithread = TRUE)
+```
+
+```{r}
+taxa <- addSpecies(taxa, "~/silva_species_assignment_v138.fa.gz?download=1")
+```
+remarque : le code est a faire tourner si le temps. il n'est pa encore fait actuellement 
+
+
+```{r}
+taxa.print <- taxa # Removing sequence rownames for display only
+rownames(taxa.print) <- NULL
+head(taxa.print)
+```
+ 
+
+```{r}
+theme_set(theme_bw())
+```
+
