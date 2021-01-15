@@ -314,10 +314,10 @@ heatmap(as.matrix(data.prop), Rowv = NA, Colv = NA, col = scaleyellowred)
 ```
 
 ```{r}
-# determine the maximum relative abundance for each column
+# determine le max d'abondance pour chaque colonne
 maxab <- apply(data.prop, 2, max)
 head(maxab)
-# remove the genera with less than 1% as their maximum relative abundance
+# On retire les moins abondantes
 n1 <- names(which(maxab < 0.01))
 data.prop.1 <- data.prop[, -which(names(data.prop) %in% n1)]
 ```
