@@ -48,6 +48,11 @@ BiocManager::install("Heatplus")
 ```{r}
 BiocManager::install("RColorBrewer")
 ```
+```{r}
+BiocManager::install("gplot")
+```
+
+
 
 remarque: 
 phyloseq installé depuis le terminal 

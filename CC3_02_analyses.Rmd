@@ -352,8 +352,16 @@ var1 <- replace(var1, which(var1 == 2), "magenta")
 cbind(row.names(data.prop), var1)
 ```
 ```{r}
-heatmap.2(as.matrix(data.prop),Rowv = as.dendrogram(row.clus), Colv = as.dendrogram(col.clus), distfun = dist,  hclustfun = hclust,  reorderfun = reorder.dendrogram, symm = FALSE,  col = scaleyellowred, RowSideColors = var1 
+library(gplot)
+heatmap.2(as.matrix(data.prop.1),Rowv = as.dendrogram(row.clus), Colv = as.dendrogram(col.clus), col = scaleyellowred, RowSideColors = var1) # this puts in the annotation for the samples margins = c(10, 3))
 ```
+
+
+```{r}
+heatmap.2(as.matrix(data.prop.1), Rowv = as.dendrogram(row.clus), Colv = as.dendrogram(col.clus), col = scaleyellowred, RowSideColors = var1, margins = c(11, 5), trace = "none", density.info = "none", xlab = "genera", ylab = "Samples", main = "Heatmap example", lhei = c(2, 8)) # this makes the colour-key legend a little thinner
+```
+
+
 
 ```{r}
 plot(annHeatmap2(as.matrix(data.prop.1)
