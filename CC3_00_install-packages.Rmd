@@ -41,6 +41,14 @@ if(any(!.inst)) {
 sapply(c(.cran_packages, .bioc_packages), require, character.only = TRUE)
 ```
 
+Pour la Heatmap:
+```{r}
+BiocManager::install("Heatplus")
+```
+```{r}
+BiocManager::install("RColorBrewer")
+```
+
 remarque: 
 phyloseq installé depuis le terminal 
 sudo apt-get install libglpk-dev

@@ -143,10 +143,9 @@ wget https://zenodo.org/record/3986799/files/silva_nr99_v138_train_set.fa.gz?dow
 taxa <- assignTaxonomy(seqtab.nochim,"~/silva_nr99_v138_train_set.fa.gz?download=1", multithread = TRUE)
 ```
 
-```{r}
+
+remarque : le code suivant est a faire tourner si le temps. il n'est pa encore fait actuellement 
 taxa <- addSpecies(taxa, "~/silva_species_assignment_v138.fa.gz?download=1")
-```
-remarque : le code est a faire tourner si le temps. il n'est pa encore fait actuellement 
 
 
 ```{r}
@@ -161,6 +160,7 @@ head(taxa.print)
 On prépare l'objet phyloseq
 
 ```{r}
+library(ggplot2)
 theme_set(theme_bw())
 ```
 
@@ -207,8 +207,9 @@ samdf$When[samdf$Year == "09.2015"] <- "Septembre2015"
 rownames(samdf) <- samples.out
 ```
 
-code suivant pour essayer de ne sélectionner que quelques lignes du tableua et donc ne pas utiliser les éponges prélevés une seule fois 
-```{r}
+
+code suivant pour essayer de ne sélectionner que quelques lignes du tableua et donc ne pas utiliser les éponges prélevés une seule fois , en cours d'élaboration :
+
 samples.out <- rownames(seqtab.nochim)
 subject2 <- samples.out
 echantillon2 <- substr(subject2, 0, 27)
@@ -237,9 +238,10 @@ samdf2$When[samdf$Year == "05.2015"] <- "Mai2015"
 samdf2$When[samdf$Year == "08.2015"] <- "Aout2015"
 samdf2$When[samdf$Year == "09.2015"] <- "Septembre2015"
 rownames(samdf2) <- samples.out
-```
+
 
 ```{r}
+library(phyloseq)
 ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
                sample_data(samdf), 
                tax_table(taxa))
@@ -253,6 +255,7 @@ ps <- merge_phyloseq(ps, dna)
 taxa_names(ps) <- paste0("ASV", seq(ntaxa(ps)))
 ps
 ```
+
 ## Alpha diversité
 
 On va calculer des indices d’alpha diversite: Shannon et l'inverse de Simpson.
@@ -265,7 +268,7 @@ plot_richness(ps, x="Echantillon", measures=c("Shannon"), color="hote")
 plot_richness(ps, x="environnement", measures=c("Shannon"), color="Hote")
 ```
 
-
+ 
 ```{r}
 plot_richness(ps, x="Echantillon", measures=c("InvSimpson"), color="Hote")
 ```
@@ -277,8 +280,22 @@ plot_richness(ps, x="environnement", measures=c("InvSimpson"), color="Hote")
 ## Heatmap
 
 ```{r}
-
+library(ggplot2)
+library(Heatplus)
+library(vegan)
+library(RColorBrewer)
 ```
+
+```{r}
+# preparation de la palette de couleur
+scaleyellowred <- colorRampPalette(c("lightyellow", "red"), space = "rgb")(100)
+```
+
+```{r}
+row.names(seqtab.nochim) <- seqtab.nochim$sample
+seqtab.nochim <- seqtab.nochim[, -1]
+```
+
 
 
 ## Beta-diversite
@@ -287,34 +304,16 @@ On va maitenant faire une pCoA (indice de beta diversite). Les points vont être
 
 ```{r}
 pslog <- transform_sample_counts(ps, function(x) log(1+x))
-out.wuf.log <- ordinate(pslog, method = "PCoA", distance = "bray")
+out.wuf.log <- ordinate(pslog, method = "NMDS", distance = "bray")
 ```
  
 ```{r}
+library(vegan)
 evals <- out.wuf.log$values$Eigenvalues
 plot_ordination(pslog, out.wuf.log,  color = "Hote", shape="Environnement") +
-labs(col = "Hote",shape= "Environnement") 
+labs(col = "Hote",shape= "Environnement")
+ordiellipse(out.wuf.log, groups = evals, draw = "polygon", lty = 1, col = "grey90")
+
 ```
-
-?????  
-
-
-```{r}
-#install.packages("vegan")
-library(vegan)
-set.seed(2)
-community_matrix=matrix(
-   sample(1:100,300,replace=T),nrow=10,
-   dimnames=list(paste("community",1:10,sep=""),paste("sp",1:30,sep="")))
-
-example_NMDS=metaMDS(community_matrix, # Our community-by-species matrix
-                     k=2) # The number of reduced dimensions
-```
-
-
-```{r}
-plot(0,2:0,3,type="n",xlab="Abundance of Species 1",
-     ylab="Abundance of Species 2")
-```
-
+Non-metric multidimensional scaling (NMDS) plot derived from Bray–Curtis distances of sponge prokaryotic communities at OTUs level. The samples of the same species were grouped with ordination ellipse using function ordiellipse of vegan package
 
