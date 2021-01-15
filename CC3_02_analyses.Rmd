@@ -300,7 +300,7 @@ seqtab.nochim <- seqtab.nochim[, -1]
 
 ## Beta-diversite
 
-On va maitenant faire une pCoA (indice de beta diversite). Les points vont êtres places les uns en fonction des autres. On ajoute donc des relations.
+On va maitenant faire une NMDS (indice de beta diversite). Les points vont êtres places les uns en fonction des autres. On ajoute donc des relations.
 
 ```{r}
 pslog <- transform_sample_counts(ps, function(x) log(1+x))
