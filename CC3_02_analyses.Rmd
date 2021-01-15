@@ -164,6 +164,10 @@ library(ggplot2)
 theme_set(theme_bw())
 ```
 
+Remarque: pour la suite, il faut que je reussis a ne selectionner que quelques eponges de la liste (celle avec plusieurs echantillons) pour que les graphes soient plus parlant 
+
+Mais pour l'instant, je n'ai pas reussi .... 
+
 ```{r}
 samples.out <- rownames(seqtab.nochim)
 subject <- samples.out
