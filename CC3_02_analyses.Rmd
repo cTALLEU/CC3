@@ -296,11 +296,15 @@ scaleyellowred <- colorRampPalette(c("lightyellow", "red"), space = "rgb")(100)
 ```
 
 ```{r}
+dim(seqtab.nochim)
+```
+
+```{r}
 row.names(seqtab.nochim) <- seqtab.nochim$sample
 seqtab.nochim <- seqtab.nochim[, -1]
 ```
 
-
+ 
 
 ## Beta-diversite
 
