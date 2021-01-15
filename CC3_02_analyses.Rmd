@@ -6,7 +6,9 @@ output:
     toc_depth: 2
 ---
 
-# Préparation des données
+# DADA2
+
+## Préparation des données
 
 ```{r}
 miseq_path <- "./DataAll" # CHANGE to the directory containing the fastq files after unzipping.
@@ -21,16 +23,21 @@ fnRs <- sort(list.files(miseq_path, pattern="_2.fastq", full.names = TRUE))
 sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 ```
 
+## Inspection du profil de qualité des reads
 
+Lorsque que l’on séquence avec Illumina, à chaque base ajoutée, on va y associer un score de qualité ou Qscore (par exemple la chance d’avoir un C si la base est un C) qui va évoluer au cours du séquencage.
+
+Les fowards:
 ```{r}
 plotQualityProfile(fnFs[1:2])
 ```
 
+Les reverses:
 ```{r}
 plotQualityProfile(fnRs[1:2])
 ```
 
-
+## Filtrer et couper
 ```{r}
 filt_path <- file.path(miseq_path, "filtered") # Place filtered files in filtered/ subdirectory
 if(!file_test("-d", filt_path)) dir.create(filt_path)
@@ -47,9 +54,12 @@ out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(250,200), trimLeft =
 head(out)
 ```
 
+## Taux d'erreur
+
 ```{r}
 errF <- learnErrors(filtFs, multithread=TRUE)
 ```
+
 ```{r}
 errR <- learnErrors(filtRs, multithread=TRUE)
 ```
@@ -58,6 +68,7 @@ errR <- learnErrors(filtRs, multithread=TRUE)
 plotErrors(errF, nominalQ=TRUE)
 ```
 
+## Interférences des échantillons
 
 ```{r}
 dadaFs <- dada(filtFs, err=errF, multithread=TRUE)
@@ -66,6 +77,11 @@ dadaFs <- dada(filtFs, err=errF, multithread=TRUE)
 ```{r}
 dadaRs <- dada(filtRs, err=errR, multithread=TRUE)
 ```
+
+## Appariment des reads complémentaires
+
+On va apparier les fowards avec leur reverses complementaires. Si nous n’avons pas de correspondence parfaite, ils seront retirés des donnees.
+
 
 ```{r}
 mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE)
@@ -77,6 +93,9 @@ mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE)
 head(mergers[[1]])
 ```
 
+## Construction de la table de sequence
+
+On prépare la table:
 ```{r}
 seqtab <- makeSequenceTable(mergers)
 dim(seqtab)
@@ -86,6 +105,10 @@ dim(seqtab)
 # Inspect distribution of sequence lengths
 table(nchar(getSequences(seqtab)))
 ```
+
+La premiere ligne donne la taille des sequences, la deuxieme donne le nombre de sequence presentant cette taille.
+
+## Supression des chimeres
 
 ```{r}
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
@@ -98,6 +121,10 @@ dim(seqtab.nochim)
 sum(seqtab.nochim)/sum(seqtab)
 ```
 
+## Suivie de l’affinement de notre set de donnees final
+
+On va suivre a chaque etape le nombre de sequence qui n’ont pas ete filtre et donc retire de notre set de donnees. On fait un suivi du traitement des données.
+
 ```{r}
 getN <- function(x) sum(getUniques(x))
 track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN), rowSums(seqtab.nochim))
@@ -109,6 +136,8 @@ head(track)
 ```{bash}
 wget https://zenodo.org/record/3986799/files/silva_nr99_v138_train_set.fa.gz?download=1
 ```
+
+## Assignation de la taxonomie
 
 ```{r}
 taxa <- assignTaxonomy(seqtab.nochim,"~/silva_nr99_v138_train_set.fa.gz?download=1", multithread = TRUE)
@@ -126,8 +155,166 @@ rownames(taxa.print) <- NULL
 head(taxa.print)
 ```
  
+ 
+# Analyses phyloseq
+
+On prépare l'objet phyloseq
 
 ```{r}
 theme_set(theme_bw())
 ```
+
+```{r}
+samples.out <- rownames(seqtab.nochim)
+subject <- samples.out
+echantillon <- substr(subject,0,26)
+subject <- substr(subject,0,26)
+samples.out2 <- samples.out
+samples.out2[c(1, 6, 7, 9, 15, 16, 17, 21, 22, 23)] <- 09.2015
+samples.out2[c(8, 10, 12, 14, 18, 25)] <- 08.2015
+samples.out2[c(2, 3, 4, 5, 11, 13, 19, 20, 24, 26, 27)] <- 05.2015
+samples.out3 <- samples.out
+samples.out3[c(2, 3, 4, 5, 11, 13, 19, 20, 24, 26, 27)] <- "Viet Nam: Lang Co Bay"
+samples.out3[c(1, 6, 7, 9, 15, 16, 17, 21, 22, 23)] <- "Viet Nam: Hon mun island"
+samples.out3[c(8, 10, 12, 14, 18, 25)] <- "Viet Nam: Con Co island"
+samples.out4 <- samples.out
+samples.out4[c(1)] <- "Amphimedon sp."
+samples.out4[c(2)] <- "Cinachyrella schulzei"
+samples.out4[c(3, 4)] <- "Haliclona amboinensis"
+samples.out4[c(5)] <- "Haliclona fascigera"
+samples.out4[c(6, 14)] <- "Clathria reinwardti"
+samples.out4[c(7, 16, 17, 19)] <- "Axinyssa topsenti"
+samples.out4[c(8, 20, 27)] <- "Xestospongia testudinaria"
+samples.out4[c(9)] <- "Haplosclerida sp."
+samples.out4[c(10, 15)] <- "Spirastrella sp."
+samples.out4[c(11, 21)] <- "Dactylospongia sp."
+samples.out4[c(12)] <- "Spheciospongia vesparium"
+samples.out4[c(13)] <- "Amphimedon compressa"
+samples.out4[c(18)] <- "Halichondria sp."
+samples.out4[c(22)] <- "Tedania sp."
+samples.out4[c(23)] <- "Niphatidae sp."
+samples.out4[c(24)] <- "Rhabdastrella globostellata"
+samples.out4[c(25)] <- "Axos cliftoni"
+samples.out4[c(26)] <- "Terpios aploos"
+environnement <- samples.out3
+date <- as.integer(samples.out2)
+hote <- samples.out4
+samdf <- data.frame(Subject=subject, Echantillon=echantillon, Date=date, Environnement=environnement, Hote=hote)
+samdf$When <- "2015"
+samdf$When[samdf$Year == "05.2015"] <- "Mai2015"
+samdf$When[samdf$Year == "08.2015"] <- "Aout2015"
+samdf$When[samdf$Year == "09.2015"] <- "Septembre2015"
+rownames(samdf) <- samples.out
+```
+
+code suivant pour essayer de ne sélectionner que quelques lignes du tableua et donc ne pas utiliser les éponges prélevés une seule fois 
+```{r}
+samples.out <- rownames(seqtab.nochim)
+subject2 <- samples.out
+echantillon2 <- substr(subject2, 0, 27)
+subject2 <- substr(subject2, 0, 27)
+samples.out22 <- samples.out
+samples.out22[c(6, 7, 15, 16, 17, 21)] <- 09.2015
+samples.out22[c(8, 10, 14)] <- 08.2015
+samples.out22[c(3, 4, 11, 19, 20, 27)] <- 05.2015
+samples.out32 <- samples.out
+samples.out32[c(3, 4, 11, 19, 20)] <- "Viet Nam: Lang Co Bay"
+samples.out32[c(6, 7, 15, 16, 17, 21)] <- "Viet Nam: Hon mun island"
+samples.out32[c(8, 10, 14, 27)] <- "Viet Nam: Con Co island"
+samples.out42 <- samples.out
+samples.out42[c(3, 4)] <- "Haliclona amboinensis"
+samples.out42[c(6, 14)] <- "Clathria reinwardti"
+samples.out42[c(7, 16, 17, 19)] <- "Axinyssa topsenti"
+samples.out42[c(8, 20, 27)] <- "Xestospongia testudinaria"
+samples.out42[c(10, 15)] <- "Spirastrella sp."
+samples.out42[c(11, 21)] <- "Dactylospongia sp."
+environnement2 <- samples.out32
+date2 <- as.integer(samples.out22)
+hote2 <- samples.out42
+samdf2 <- data.frame(Subject=subject2, Echantillon=echantillon2, Date=date2, Environnement=environnement2, Hote=hote2)
+samdf2$When <- "2015"
+samdf2$When[samdf$Year == "05.2015"] <- "Mai2015"
+samdf2$When[samdf$Year == "08.2015"] <- "Aout2015"
+samdf2$When[samdf$Year == "09.2015"] <- "Septembre2015"
+rownames(samdf2) <- samples.out
+```
+
+```{r}
+ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
+               sample_data(samdf), 
+               tax_table(taxa))
+ps <- prune_samples(sample_names(ps) != "Mock", ps) # Remove mock sample
+```
+
+```{r}
+dna <- Biostrings::DNAStringSet(taxa_names(ps))
+names(dna) <- taxa_names(ps)
+ps <- merge_phyloseq(ps, dna)
+taxa_names(ps) <- paste0("ASV", seq(ntaxa(ps)))
+ps
+```
+## Alpha diversité
+
+On va calculer des indices d’alpha diversite: Shannon et l'inverse de Simpson.
+
+
+```{r}
+plot_richness(ps, x="Echantillon", measures=c("Shannon"), color="hote")
+```
+```{r}
+plot_richness(ps, x="environnement", measures=c("Shannon"), color="Hote")
+```
+
+
+```{r}
+plot_richness(ps, x="Echantillon", measures=c("InvSimpson"), color="Hote")
+```
+
+```{r}
+plot_richness(ps, x="environnement", measures=c("InvSimpson"), color="Hote")
+```
+
+## Heatmap
+
+```{r}
+
+```
+
+
+## Beta-diversite
+
+On va maitenant faire une pCoA (indice de beta diversite). Les points vont êtres places les uns en fonction des autres. On ajoute donc des relations.
+
+```{r}
+pslog <- transform_sample_counts(ps, function(x) log(1+x))
+out.wuf.log <- ordinate(pslog, method = "PCoA", distance = "bray")
+```
+ 
+```{r}
+evals <- out.wuf.log$values$Eigenvalues
+plot_ordination(pslog, out.wuf.log,  color = "Hote", shape="Environnement") +
+labs(col = "Hote",shape= "Environnement") 
+```
+
+?????  
+
+
+```{r}
+#install.packages("vegan")
+library(vegan)
+set.seed(2)
+community_matrix=matrix(
+   sample(1:100,300,replace=T),nrow=10,
+   dimnames=list(paste("community",1:10,sep=""),paste("sp",1:30,sep="")))
+
+example_NMDS=metaMDS(community_matrix, # Our community-by-species matrix
+                     k=2) # The number of reduced dimensions
+```
+
+
+```{r}
+plot(0,2:0,3,type="n",xlab="Abundance of Species 1",
+     ylab="Abundance of Species 2")
+```
+
 
