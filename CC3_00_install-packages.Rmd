@@ -49,7 +49,7 @@ BiocManager::install("Heatplus")
 BiocManager::install("RColorBrewer")
 ```
 ```{r}
-BiocManager::install("gplot")
+BiocManager::install("gplots")
 ```
 
 
