@@ -358,7 +358,7 @@ heatmap.2(as.matrix(data.prop),Rowv = as.dendrogram(row.clus), Colv = as.dendrog
 
 
 ```{r}
-heatmap.2(as.matrix(data.prop), Rowv = as.dendrogram(row.clus), Colv = as.dendrogram(col.clus), col = scaleyellowred, RowSideColors = var1, margins = c(11, 5), trace = "none", density.info = "none", xlab = "genera", ylab = "Samples", main = "Heatmap example", lhei = c(2, 8)) # this makes the colour-key legend a little thinner
+heatmap.2(as.matrix(data.prop), Rowv = as.dendrogram(row.clus), Colv = as.dendrogram(col.clus), col = scaleyellowred, RowSideColors = var1, margins = c(11, 5), trace = "none", density.info = "none", xlab = "genera", ylab = "Samples", main = "Heatmap of the prokaryotic composition and relative abundance of sponge-associated prokaryotes", lhei = c(2, 8)) # this makes the colour-key legend a little thinner
 ```
 
 
