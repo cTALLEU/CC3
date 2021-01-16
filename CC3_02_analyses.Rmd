@@ -300,7 +300,7 @@ dim(seqtab.nochim)
 ```
 
 ```{r}
-row.names(seqtab.nochim) <- samples.out
+row.names(seqtab.nochim) <- samples.out4
 seqtab.nochim <- seqtab.nochim[, -1]
 ```
 
@@ -325,7 +325,7 @@ data.prop.1 <- data.prop[, -which(names(data.prop) %in% n1)]
 
 ```{r}
 # the margins command sets the width of the white space around the plot. The first element is the bottom margin and the second is the right margin
-heatmap(as.matrix(data.prop.1), Rowv = NA, Colv = NA, col = scaleyellowred, margins = c(10, 2))
+heatmap(as.matrix(data.prop), Rowv = NA, Colv = NA, col = scaleyellowred, margins = c(10, 2))
 ```
 probleme avec data.prop.1, je vais continuer sans avoir retirer les moins abondante donc. 
 
@@ -373,13 +373,13 @@ col = scaleyellowred
 
 ```{r}
 dendrogram = list(Row = list(dendro = as.dendrogram(row.clus)), Col = list(dendro = as.dendrogram(col.clus)), legend = 3) # this puts the colour-scale legend on the plot. The number indicates the side on which to plot it (1 = bottom, 2 = left, 3 = top, 4 = right)
-labels = list(Col = list(nrow = 32)) # gives more space for the Genus names
+labels = list(Col = list(nrow = 12)) # gives more space for the Genus names
 ```
 
 ```{r}
 ann.dat <- data.frame(var1 = c(rep("cat1", 4), rep("cat2", 8)), var2 = rnorm(12,  mean = 50, sd = 20))
 
-plot(annHeatmap2(as.matrix(data.prop), col = colorRampPalette(c("lightyellow", "red"), space = "rgb")(51), breaks = 50, dendrogram = list(Row = list(dendro = as.dendrogram(row.clus)), Col = list(dendro = as.dendrogram(col.clus))), legend = 3, labels = list(Col = list(nrow = 32)), ann = list(Row = list(data = ann.dat))))
+plot(annHeatmap2(as.matrix(data.prop), col = colorRampPalette(c("lightyellow", "red"), space = "rgb")(51), breaks = 50, dendrogram = list(Row = list(dendro = as.dendrogram(row.clus)), Col = list(dendro = as.dendrogram(col.clus))), legend = 3, labels = list(Col = list(nrow = 12)), ann = list(Row = list(data = ann.dat))))
 ```
 
 ```{r}
