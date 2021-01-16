@@ -367,8 +367,38 @@ heatmap.2(as.matrix(data.prop), Rowv = as.dendrogram(row.clus), Colv = as.dendro
 plot(annHeatmap2(as.matrix(data.prop)))
 ```
 ```{r}
-col = colorRampPalette(c("lightyellow", "red"), space = "rgb")(51), breaks = 50)
+col = scaleyellowred
 ```
+
+
+```{r}
+dendrogram = list(Row = list(dendro = as.dendrogram(row.clus)), Col = list(dendro = as.dendrogram(col.clus)), legend = 3) # this puts the colour-scale legend on the plot. The number indicates the side on which to plot it (1 = bottom, 2 = left, 3 = top, 4 = right)
+labels = list(Col = list(nrow = 32)) # gives more space for the Genus names
+```
+
+```{r}
+ann.dat <- data.frame(var1 = c(rep("cat1", 4), rep("cat2", 8)), var2 = rnorm(12,  mean = 50, sd = 20))
+
+plot(annHeatmap2(as.matrix(data.prop), col = colorRampPalette(c("lightyellow", "red"), space = "rgb")(51), breaks = 50, dendrogram = list(Row = list(dendro = as.dendrogram(row.clus)), Col = list(dendro = as.dendrogram(col.clus))), legend = 3, labels = list(Col = list(nrow = 32)), ann = list(Row = list(data = ann.dat))))
+```
+
+```{r}
+ann.dat <- data.frame(var1 = c(rep("cat1", 4), rep("cat2", 8)), var2 = rnorm(12, mean = 50, sd = 20))
+```
+
+```{r}
+plot(annHeatmap2(as.matrix(data.prop),
+col = colorRampPalette(c("lightyellow", "red"), space = "rgb")(51),
+breaks = 50,
+dendrogram = list(Row = list(dendro = as.dendrogram(row.clus)), Col = list(dendro = as.dendrogram(col.clus))),
+legend = 3,
+labels = list(Col = list(nrow = 12)),
+ann = list(Row = list(data = ann.dat)),
+cluster = list(Row = list(cuth = 0.25, col = brewer.pal(3, "Set2"))) # cuth gives the height at which the dedrogram should be cut to form clusters, and col specifies the colours for the clusters
+))
+```
+
+
 
 
 
